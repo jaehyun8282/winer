@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="wproduct">
+	<!-- Use type aliases to avoid typing the full classname every time. -->
+	<resultMap id="wproductResult" type="wproduct">
+		<result property="p_id" 		column="p_id" />		
+		<result property="p_category" 	column="p_category" />
+		<result property="p_name" 		column="p_name" />	
+		<result property="p_sname" 		column="p_sname" />				
+		<result property="p_price" 		column="p_price" />
+		<result property="p_sale" 		column="p_sale" />	
+		<result property="p_image" 		column="p_image" />
+		<result property="p_info" 		column="p_info" />		
+		<result property="p_count" 		column="p_count" />
+		<result property="p_date" 		column="p_date" />
+	</resultMap>
+	<select id="getTotalProduct" resultType="Integer">
+		select count(*) from wproduct
+	</select>
+	<select id="list" parameterType="hashMap" resultMap="wproductResult">
+		select * from (select a.*, rowNum rn from (select * from wproduct
+		<if test="p_category != null"> where p_category=#{p_category}</if>
+		order by p_date desc) a) where rn between #{startRow} and #{endRow}
+	</select>
+	<insert id="insert" parameterType="wproduct">
+		<selectKey keyProperty="p_id" order="BEFORE" resultType="int">
+			select nvl(max(p_id),0)+1 from wproduct
+		</selectKey>
+		insert into wproduct values(#{p_id}, #{p_category}, #{p_name}, #{p_sname}, #{p_price},
+		#{p_sale}, #{p_image}, #{p_info}, #{p_count}, sysdate)
+	</insert>
+	<select id="pdContent" parameterType="int" resultType="wproduct">
+		select * from wproduct where p_id=#{p_id}
+	</select>
+	<update id="update" parameterType="wproduct">
+		update wproduct set p_category=#{p_category},p_name=#{p_name}, p_sname=#{p_sname}, p_price=#{p_price},
+		p_sale=#{p_sale}, p_image=#{p_image}, p_info=#{p_info}, p_count=#{p_count} where p_id=#{p_id}
+	</update>
+	<delete id="delete" parameterType="int">
+		delete from wproduct where p_id=#{p_id}
+	</delete>
+	<select id="pdList" parameterType="hashmap" resultMap="wproductResult">
+			select * from wproduct 
+				<if test="p_category!=null and p_category!=''">
+					 where p_category=#{p_category}
+				</if>			
+			order by p_sale desc
+	</select>
+	<select id="rlist" resultMap="wproductResult">
+		<![CDATA[
+			select * from wproduct where p_category = 
+			(select p_category from wproduct where p_id=#{p_id})
+		]]>
+	</select>
+	<select id="search" parameterType="string" resultMap="wproductResult">
+		select * from wproduct where p_name like '%'||#{search}||'%'
+	</select>
+</mapper>

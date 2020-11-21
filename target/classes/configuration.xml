@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<typeAliases>
+		<typeAlias alias="wmember" type="com.ch.winer.model.Wmember"/>
+		<typeAlias alias="wboard" type="com.ch.winer.model.Wboard"/>
+		<typeAlias alias="rbd" type="com.ch.winer.model.WreplyBoard"/>
+		<typeAlias alias="wproduct" type="com.ch.winer.model.Wproduct"/>
+		<typeAlias alias="wcart" type="com.ch.winer.model.Wcart"/>
+	</typeAliases>
+	<mappers>
+		<mapper	resource="wmember.xml" />
+		<mapper	resource="wboard.xml" />
+		<mapper	resource="rbd.xml" />
+		<mapper	resource="Wproduct.xml" />
+		<mapper	resource="Wcart.xml" />
+	</mappers>
+</configuration>

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="wboardns">
+
+	<resultMap type="wboard" id="wboardResult">
+		<result property="num" column="num" />
+		<result property="b_id" column="b_id" />
+		<result property="name" column="name" />
+		<result property="subject" column="subject" />
+		<result property="content" column="content" />
+		<result property="b_image" column="b_image" />
+		<result property="readcount" column="readcount" />
+		<result property="ref" column="ref" />
+		<result property="re_step" column="re_step" />
+		<result property="re_level" column="re_level" />
+		<result property="re_date" column="re_date" />
+		<result property="del" column="del" />
+	</resultMap>
+
+	<select id="getTotal" parameterType="wboard" resultType="int">
+		select count(*) from wboard
+		<where>
+			<if test="keyword!=null and keyword!=''">
+				<if test="search=='subcon'">
+					subject like '%'||#{keyword}||'%' or
+					content like
+					'%'||#{keyword}||'%'
+				</if>
+				<if test="search!='subcon'">
+					${search} like '%'||#{keyword}||'%'
+				</if>
+			</if>
+		</where>
+	</select>
+	<!-- <select id="list" parameterType="map" resultMap="boardResult"> select 
+		* from (select a.*,rowNum rn from ( select * from board1 order by ref desc, 
+		re_step) a) where rn between #{startRow} and #{endRow} </select> -->
+	<!-- #은 값 문자('대박') $은 키 변수 writer -->
+
+	<select id="list" parameterType="wboard"
+		resultMap="wboardResult">
+		select * from (select a.*,rowNum rn from (
+		SELECT e.* ,( SELECT name
+		FROM wmember c WHERE c.id = e.b_id) as name FROM wboard e
+		<where>
+			<if test="keyword!=null and keyword!=''">
+				<if test="search=='subcon'">
+					e.subject like '%'||#{keyword}||'%' or
+					e.content like
+					'%'||#{keyword}||'%'
+				</if>
+				<if test="search!='subcon'">
+					${search} like '%'||#{keyword}||'%'
+				</if>
+			</if>
+		</where>
+
+		order by ref desc, re_step) a) where rn between #{startRow} and	#{endRow}
+	</select>
+	<select id="maxNum" resultType="integer">
+		select nvl(max(num),0)+1 from wboard
+	</select>
+	<insert id="insert" parameterType="wboard">
+		insert into
+		wboard(num,b_id,subject,content,b_image,readcount,ref,re_step,re_level,re_date,del)
+		values(#{num},#{b_id},#{subject},#{content},#{b_image},0,#{ref},#{re_step},#{re_level},sysdate,'n')
+	</insert>
+	<update id="updateReadCount" parameterType="int">
+		update wboard set readcount = readcount + 1 where num=#{num}
+	</update>
+	<update id="updateStep" parameterType="wboard">
+		update wboard set re_step = re_step +1 where ref=#{ref} and re_step > #{re_step}
+	</update>
+	<select id="select" parameterType="integer" resultType="wboard">
+		select * from wboard where num=#{num}
+	</select>
+	<update id="update" parameterType="wboard">
+		update wboard set subject=#{subject}, content=#{content}, b_image=#{b_image}
+		where num=#{num}
+	</update>
+	<update id="delete" parameterType="integer">
+		update wboard set del='y' where num=#{num}
+	</update>
+</mapper>

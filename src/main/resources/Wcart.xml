@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="wcart">
+	<!-- Use type aliases to avoid typing the full classname every time. -->
+	<resultMap id="wcartResult" type="wcart">
+		<result property="ct_id" 		column="ct_id" />		
+		<result property="ct_del" 		column="ct_del" />
+		<result property="p_id" 		column="p_id" />					
+		<result property="id" 			column="id" />
+		<result property="ct_count" 	column="ct_count" />	
+		<result property="p_name" 		column="p_name" />
+		<result property="p_price" 		column="p_price" />		
+		<result property="p_sale" 		column="p_sale" />
+		<result property="p_image" 		column="p_image" />
+		<result property="p_count" 		column="p_count" />
+		<result property="name" 		column="name" />
+		<result property="tel" 			column="tel" />
+		<result property="addr" 		column="addr" />
+		<result property="email" 		column="email" />
+	</resultMap>	
+	<select id="selectId" parameterType="wcart" resultType="String">
+		select distinct id from wcart where p_id=#{p_id} and id=#{id}
+	</select>
+	<select id="selectDel" parameterType="wcart" resultType="String">
+		select ct_del from wcart where p_id=#{p_id} and id=#{id} and ct_id=(select max(ct_id) from wcart where p_id=#{p_id} and id=#{id})
+	</select>
+	<insert id="insert" parameterType="wcart">
+		<selectKey keyProperty="ct_id" order="BEFORE" resultType="int">		
+			select nvl(max(ct_id),0)+1 from wcart
+		</selectKey>
+		insert into wcart values (#{ct_id},#{p_id},#{id},#{ct_count},'n')
+	</insert>	
+	<update id="update" parameterType="wcart">
+		update wcart set ct_count = ct_count + #{ct_count} where p_id=#{p_id}
+	</update>
+	<select id="list" parameterType="String" resultMap="wcartResult">
+		select * from wcart natural join wproduct where id=#{id}
+	</select>
+	<delete id="delete" parameterType="int">
+		delete from wcart where ct_id=#{ct_id}
+	</delete>
+	<select id="info" parameterType="int" resultType="wcart">
+		select * from wcart natural join wproduct where ct_id=#{ct_id}
+	</select>
+	<update id="updateCnt" parameterType="hashMap">
+		update wcart set ct_count=#{ct_count} where ct_id=#{ct_id}
+	</update>
+	<select id="content" parameterType="wcart" resultType="wcart">
+		select * from wcart where id=#{id} and ct_id=(select max(ct_id) from wcart where id=#{id})
+	</select>
+</mapper>
